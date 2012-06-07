@@ -18,24 +18,32 @@ using namespace std;
 
 namespace
 {
-  int section[] = {0,0,1,1,1,1,1,1,1,1,1};
+  int section[] = {0,0,0,0,0,0,0,0,0,0};
+
+  const string spaces("  ");
 
   void generate_section_number(string& buf, string::size_type pos, int level)
   {
     int i;
     for (i = 1; i <= level; ++i)
     {
+      if (i == level)
+        ++section[i];
       string number(boost::lexical_cast<string>(section[i]));
       buf.insert(pos, number);
       pos += number.size();
       if (i == level)
-        ++section[i];
+        buf.insert(pos, spaces);
       else
+      {
         buf.insert(pos, 1, '.');
-
-      while (section[++i] > 1)
-        section[i] = 1;
+        ++pos;
+      }
     }
+
+    // reset any higher section numbers to 0
+    for (; i < sizeof(section)/sizeof(int) && section[i] > 0; ++i)
+      section[i] = 0;
   }
 }  // unnamed namespace
 
@@ -43,30 +51,28 @@ namespace
 
 int cpp_main( int argc, char* argv[] )
 {
-  if ( argc < 2 )
+  if (argc > 1)
   {
-    cout << "Usage: " << argv[0] << " input-path\n";
-    return 1;
-  }
-
-  fstream fi( argv[1] );
-  if ( !fi )
-  {
-    cout << "Failed to open: " << argv[1] << "\n";
-    return 1;
+    cout << "Usage: html_section_numbers\n"
+            "  Reads input from stdin\n"
+            "  Writes output to stdout\n"
+            ;
+     return 1;
   }
 
   string buf;
-  getline( fi, buf, '\0' ); // read entire file
-
-  cout << "buf.size() is " << buf.size() << endl;
+  getline(cin, buf, '\0' ); // read entire file
 
   string::size_type pos;
 
-  for ( pos = 0; (pos = buf.find( "<h", pos )) < buf.size(); ++pos )
+  for ( pos = 0; (pos = buf.find( "<h", pos )) < buf.size() - 4; ++pos )
   {
-    // find start
-    if ( buf[pos+2] < '2' || buf[pos+2] > '9' ) continue;
+    // get level
+    if (buf[pos+2] < '1' || buf[pos+2] > '9') // not a heading
+    {
+      pos += 2;
+      continue;
+    }
     int level = buf[pos+2] - '0';
     pos += 4;
     generate_section_number(buf, pos, level);
