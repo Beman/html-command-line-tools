@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "html_section_numbers", "html_section_numbers\html_section_numbers.vcxproj", "{2F12A3EF-FD23-4801-86E2-1FF183F3012E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F12A3EF-FD23-4801-86E2-1FF183F3012E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2F12A3EF-FD23-4801-86E2-1FF183F3012E}.Debug|Win32.Build.0 = Debug|Win32
+		{2F12A3EF-FD23-4801-86E2-1FF183F3012E}.Release|Win32.ActiveCfg = Release|Win32
+		{2F12A3EF-FD23-4801-86E2-1FF183F3012E}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
