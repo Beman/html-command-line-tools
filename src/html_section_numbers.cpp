@@ -8,7 +8,6 @@
 
 //----------------------------------------------------------------------------// 
 
-#include <fstream>
 #include <iostream>
 #include <string>
 #include <boost/lexical_cast.hpp>
@@ -61,25 +60,40 @@ int cpp_main( int argc, char* argv[] )
   }
 
   string buf;
-  getline(cin, buf, '\0' ); // read entire file
-
   string::size_type pos;
+  bool generate = true;
+  int prior_level = 0;
 
-  for ( pos = 0; (pos = buf.find( "<h", pos )) < buf.size() - 4; ++pos )
+  while (getline(cin, buf))  // input each line
   {
-    // get level
-    if (buf[pos+2] < '1' || buf[pos+2] > '9') // not a heading
+    if (buf.find("generate-section-numbers=false") != string::npos)
     {
-      pos += 2;
+      generate = false;
       continue;
     }
-    int level = buf[pos+2] - '0';
-    pos += 4;
-    generate_section_number(buf, pos, level);
+    else if (buf.find("generate-section-numbers=true") != string::npos)
+    {
+      generate = true;
+      continue;
+    }
+    else if (generate && (pos = buf.find("<h")) < buf.size() - 4)
+    {
+      // if heading
+      if (buf[pos+2] >= '1' && buf[pos+2] <= '9')
+      {
+        int level = buf[pos+2] - '0';
+        pos += 4;
+        generate_section_number(buf, pos, level);
+        if (level > prior_level+1)
+          cerr << "warning: heading level is more than one greater than prior level\n";
+        prior_level = level;
+      }
+    }
+
+    // output the line
+    std::cout << buf << '\n';
   }
 
-  // generate the output file
-  std::cout << buf;
 
   return 0;
 }
