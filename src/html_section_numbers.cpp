@@ -55,6 +55,10 @@ int cpp_main( int argc, char* argv[] )
     cout << "Usage: html_section_numbers\n"
             "  Reads input from stdin\n"
             "  Writes output to stdout\n"
+            "  Input lines copied to output, adding section numbers at start of\n"
+            "  <h1>-<h9> heading elements.\n"
+            "  Input lists containing \"generate-section-numbers=false\" or\n"
+            "  \"generate-section-numbers=true\" cause indicated action. Default true.\n"
             ;
      return 1;
   }
