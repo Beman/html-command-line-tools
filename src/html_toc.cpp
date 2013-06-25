@@ -20,16 +20,32 @@ using namespace std;
 
 int cpp_main( int argc, char* argv[] )
 {
-  if ( argc < 2 )
+  bool suppress_sq_brackets = false;
+
+  if (argc > 1 && *argv[1] == '-' && *(argv[1]+1) == 'x')
   {
-    cout << "Usage: " << argv[0] << " input-path\n";
+    suppress_sq_brackets = true;
+    --argc; ++argv;
+  }
+
+  if ( argc < 3 )
+  {
+    cout << "Usage: toc [-x] input-file output-file\n";
+    cout << "  Option -x suppresses [...] in heading text\n";
     return 1;
   }
 
-  fstream fi( argv[1] );
+  ifstream fi( argv[1] );
   if ( !fi )
   {
-    cout << "Failed to open: " << argv[1] << "\n";
+    cout << "Failed to open input file: " << argv[1] << "\n";
+    return 1;
+  }
+
+  ofstream fo( argv[2] );
+  if ( !fo )
+  {
+    cout << "Failed to open output file: " << argv[2] << "\n";
     return 1;
   }
 
@@ -40,49 +56,59 @@ int cpp_main( int argc, char* argv[] )
 
   string::size_type pos;
   string::size_type end;
+  int level;
 
+  //  process each heading
   for ( pos = 0; (pos = buf.find( "<h", pos )) < buf.size(); ++pos )
   {
-    // find start
-    if ( buf[pos+2] < '2' || buf[pos+2] > '9' ) continue;
-    int level = buf[pos+2] - '0';
+    // set level and set pos to position after <h#>
+    if ( buf[pos+2] < '1' || buf[pos+2] > '9' ) continue;
+    level = buf[pos+2] - '0';
     pos += 4;
 
-    // find end
+    // find end of heading
     if ( (end = buf.find( "</h", pos )) == string::npos ) break;
 
-    string s( &buf[pos], &buf[end] );
-    string text;
-    string anchor;
-    if ( (pos+10) < buf.size() && s.substr(0, 9) == "<a name=\"" )
-    {
-      anchor = s.substr( 9, s.find('"', 9 ) - 9 );
-    }
-    bool in_tag = false;
-    bool end_tag = false;
+    string text(&buf[pos], &buf[end]);  // initially, assume whole heading is text
 
-    for ( unsigned i = 0; i < s.size(); ++i )
+    // get anchor and erase anchor from text
+    string s(&buf[pos], &buf[end]);
+    string anchor;
+    string::size_type anchor_pos = s.find("<a name=\""), anchor_end;
+    if (anchor_pos != string::npos)
     {
-      if ( s[i] == '<' )
+      anchor_pos += 9;
+      anchor_end = s.find("\"", anchor_pos);
+      if (anchor_end != string::npos)
       {
-        in_tag = true;
-        end_tag = s[i+1] == '/';
-        continue;
+        anchor = s.substr(anchor_pos, anchor_end - anchor_pos);
+        text.erase(anchor_pos - 9, anchor.size() + 11);  // erase <a..>
+        anchor_end = text.find("</a>", anchor_pos - 9);
+        if (anchor_end != string::npos)
+          text.erase(anchor_end, 4);   // erase </a>
       }
-      if ( s[i] == '>' )
-      {
-        in_tag = false;
-        continue;
-      }
-      if ( !in_tag ) text += s[i];
+    }
+
+    // if requested, remove [...]
+    string::size_type bracket_pos;
+    if (suppress_sq_brackets && (bracket_pos = text.find('[')) != string::npos)
+    {
+      string::size_type bracket_end(text.find(']', bracket_pos));
+      if (bracket_end != string::npos)
+        text.erase(bracket_pos, bracket_end - bracket_pos +1);
     }
 
     // generate the HTML
     if ( !anchor.empty() )
     {
-      cout << "      ";
-      for ( int i = 2; i < level; ++i ) cout << "&nbsp;&nbsp;&nbsp;";
-      cout << "<a href=\"#" << anchor << "\">" << text << "</a><br>" << endl;
+      fo << "      ";
+      for ( int i = 2; i < level; ++i )
+        fo << "&nbsp;&nbsp;&nbsp;";
+      fo << "<a href=\"#" << anchor << "\">" << text << "</a><br>" << endl;
+    }
+    else
+    {
+      cout << "no anchor: <h" << level << ">" << text << "\n"; 
     }
   }                                       
 
