@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <boost/lexical_cast.hpp>
 #include <boost/test/included/prg_exec_monitor.hpp>
 
@@ -23,11 +24,21 @@ namespace
 
   void generate_section_number(string& buf, string::size_type pos, int level)
   {
+    // if there is an existing section number, erase it
+    if (std::strchr("0123456789", buf[pos]))
+    {
+      while (std::strchr("0123456789. ", buf[pos]))
+        buf.erase(pos, 1);
+    }
+
+    // insert the new section number
     int i;
     for (i = 1; i <= level; ++i)
     {
       if (i == level)
         ++section[i];
+      if (!section[i])
+        continue;
       string number(boost::lexical_cast<string>(section[i]));
       buf.insert(pos, number);
       pos += number.size();
