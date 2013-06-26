@@ -84,12 +84,10 @@ int cpp_main( int argc, char* argv[] )
     if (buf.find("generate-section-numbers=false") != string::npos)
     {
       generate = false;
-      continue;
     }
     else if (buf.find("generate-section-numbers=true") != string::npos)
     {
       generate = true;
-      continue;
     }
     else if (generate && (pos = buf.find("<h")) < buf.size() - 4)
     {
