@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <boost/detail/lightweight_main.hpp>
 
 using std::cout;
 using std::cerr;
@@ -26,10 +27,10 @@ namespace
   string input_path;
   std::ifstream in;
   string ln;
-  string::size_type pos;
+  string::size_type pos, semi_pos, lt_pos, gt_pos, amp_pos;
 }
 
-int main(int argc, char* argv[])
+int cpp_main(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -48,22 +49,25 @@ int main(int argc, char* argv[])
 
   //  read each line
 
-  getline(in, ln);
-  while (in.good())
+  for (;;)
   {
+    getline(in, ln);
+    if (!in.good())
+      break;
+
     pos = ln.find_first_not_of(" ");
 
     // empty lines
     if (ln.empty() || pos == string::npos)
     {
       cout << '\n';
-      getline(in, ln);
+      continue;
     }
 
     // comment only lines
     if (ln[pos] == '/' && ln[pos+1] == '/')  // comment only
     {
-      getline(in, ln);
+      continue;
     }
 
     // signature lines
@@ -73,13 +77,28 @@ int main(int argc, char* argv[])
     {
       if (ln.find("void") != string::npos)
         is_void = true;
-      cout << ln.c_str() + pos;
-      if (ln.find(';') != string::npos)
+      for (const char* p = ln.c_str() + pos;
+           *p != '\0' && !(*p == '/' && *(p+1) == '/'); ++p)  // stop at end or "//"
+      {
+        while (*p == ' ' && *(p+1) == ' ' && *(p+2) == ' ')  
+          ++p;  // reduce multiple spaces to at most two spaces 
+        cout << *p;
+      }
+      semi_pos = ln.rfind(';');
+      lt_pos   = ln.rfind("&lt;");
+      gt_pos   = ln.rfind("&gt;");
+      amp_pos  = ln.rfind("&amp;");
+      if (semi_pos != string::npos
+          && (lt_pos == string::npos || semi_pos > lt_pos + 3)
+          && (gt_pos == string::npos || semi_pos > gt_pos + 3)
+          && (amp_pos == string::npos || semi_pos > amp_pos + 4))
         break;
+      else
+        cout << "\n";
       getline(in, ln);
     } while (in.good());
 
-    if (!in.eof())
+    if (in.eof())
       break;
     cout << "</pre>\n";
     cout << "<blockquote>\n  <p><i>";
