@@ -12,7 +12,8 @@
 #include <iostream>
 #include <string>
 
-#include <boost/test/included/prg_exec_monitor.hpp>
+#include <boost/detail/lightweight_main.hpp>
+
 
 using namespace std;
 
