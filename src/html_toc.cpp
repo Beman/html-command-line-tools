@@ -14,25 +14,43 @@
 
 #include <boost/detail/lightweight_main.hpp>
 
-
 using namespace std;
+
+namespace
+{
+  bool suppress_sq_brackets = false;
+  bool all_anchors = false;
+
+  string buf;
+
+  string::size_type heading_or_anchor(string::size_type pos)
+  {
+    string::size_type heading = buf.find( "<h", pos );
+    string::size_type anchor = all_anchors ? buf.find( "<a name=", pos ) : string::npos;
+    return heading < anchor ? heading : anchor;
+  }
+}
 
 //----------------------------------------------------------------------------// 
 
 int cpp_main( int argc, char* argv[] )
 {
-  bool suppress_sq_brackets = false;
-
   if (argc > 1 && *argv[1] == '-' && *(argv[1]+1) == 'x')
   {
     suppress_sq_brackets = true;
     --argc; ++argv;
   }
+  else if (argc > 1 && *argv[1] == '-' && *(argv[1]+1) == 'a')
+  {
+    all_anchors = true;
+    --argc; ++argv;
+  }
 
   if ( argc < 3 )
   {
-    cout << "Usage: toc [-x] input-file output-file\n";
+    cout << "Usage: toc [-x] [-a] input-file output-file\n";
     cout << "  Option -x suppresses [...] in heading text\n";
+    cout << "  Option -a adds all anchors to table-of-contents, not just headings\n";
     return 1;
   }
 
@@ -50,7 +68,6 @@ int cpp_main( int argc, char* argv[] )
     return 1;
   }
 
-  string buf;
   getline( fi, buf, '\0' ); // read entire file
 
   cout << "buf.size() is " << buf.size() << endl;
@@ -59,57 +76,85 @@ int cpp_main( int argc, char* argv[] )
   string::size_type end;
   int level;
 
-  //  process each heading
-  for ( pos = 0; (pos = buf.find( "<h", pos )) < buf.size(); ++pos )
+  //  process each heading or anchor
+  for ( pos = 0; (pos = heading_or_anchor(pos)) < buf.size(); ++pos )
   {
-    // set level and set pos to position after <h#>
-    if ( buf[pos+2] < '1' || buf[pos+2] > '9' ) continue;
-    level = buf[pos+2] - '0';
-    pos += 4;
-
-    // find end of heading
-    if ( (end = buf.find( "</h", pos )) == string::npos ) break;
-
-    string text(&buf[pos], &buf[end]);  // initially, assume whole heading is text
-
-    // get anchor and erase anchor from text
-    string s(&buf[pos], &buf[end]);
+    string text;
     string anchor;
-    string::size_type anchor_pos = s.find("<a name=\""), anchor_end;
-    if (anchor_pos != string::npos)
+
+    if (buf[pos+1] == 'h')
     {
-      anchor_pos += 9;
-      anchor_end = s.find("\"", anchor_pos);
-      if (anchor_end != string::npos)
+      // set level and set pos to position after <h#>
+      if ( buf[pos+2] < '1' || buf[pos+2] > '9' ) continue;
+      level = buf[pos+2] - '0';
+      pos += 4;
+
+      // find end of heading
+      if ( (end = buf.find( "</h", pos )) == string::npos ) break;
+
+      text.append(&buf[pos], &buf[end]);  // initially, assume whole heading is text
+
+      // get anchor and erase anchor from text
+      string s(&buf[pos], &buf[end]);
+      string::size_type anchor_pos = s.find("<a name=\""), anchor_end;
+      if (anchor_pos != string::npos)
       {
-        anchor = s.substr(anchor_pos, anchor_end - anchor_pos);
-        text.erase(anchor_pos - 9, anchor.size() + 11);  // erase <a..>
-        anchor_end = text.find("</a>", anchor_pos - 9);
+        anchor_pos += 9;
+        anchor_end = s.find("\"", anchor_pos);
         if (anchor_end != string::npos)
-          text.erase(anchor_end, 4);   // erase </a>
+        {
+          anchor = s.substr(anchor_pos, anchor_end - anchor_pos);
+          text.erase(anchor_pos - 9, anchor.size() + 11);  // erase <a..>
+          anchor_end = text.find("</a>", anchor_pos - 9);
+          if (anchor_end != string::npos)
+            text.erase(anchor_end, 4);   // erase </a>
+        }
       }
-    }
 
-    // if requested, remove [...]
-    string::size_type bracket_pos;
-    if (suppress_sq_brackets && (bracket_pos = text.find('[')) != string::npos)
-    {
-      string::size_type bracket_end(text.find(']', bracket_pos));
-      if (bracket_end != string::npos)
-        text.erase(bracket_pos, bracket_end - bracket_pos +1);
-    }
+      // if requested, remove [...]
+      string::size_type bracket_pos;
+      if (suppress_sq_brackets && (bracket_pos = text.find('[')) != string::npos)
+      {
+        string::size_type bracket_end(text.find(']', bracket_pos));
+        if (bracket_end != string::npos)
+          text.erase(bracket_pos, bracket_end - bracket_pos +1);
+      }
 
-    // generate the HTML
-    if ( !anchor.empty() )
-    {
-      fo << "      ";
-      for ( int i = 2; i < level; ++i )
-        fo << "&nbsp;&nbsp;&nbsp;";
-      fo << "<a href=\"#" << anchor << "\">" << text << "</a><br>" << endl;
+      // generate the HTML
+      if ( !anchor.empty() )
+      {
+//        fo << "&nbsp;&nbsp;&nbsp;";
+        for ( int i = 2; i < level; ++i )
+          fo << "&nbsp;&nbsp;&nbsp;";
+        fo << "<a href=\"#" << anchor << "\">" << text << "</a><br>" << endl;
+      }
+      else
+      {
+        cout << "no anchor: <h" << level << ">" << text << "\n"; 
+      }
+
+      pos = end;
     }
-    else
+    else // pos is for "<a name=\"" not in a heading
     {
-      cout << "no anchor: <h" << level << ">" << text << "\n"; 
+      // find end of heading
+      if ( (end = buf.find( "</a>", pos )) == string::npos ) break;
+
+      pos += 9; // account for the <a name="
+
+      for (; pos < end && buf[pos] != '"'; ++pos)
+        anchor += buf[pos];
+
+      text.append(&buf[pos+2], &buf[end]);  // don't include "> at beginning of text
+
+      if ( !anchor.empty() && !text.empty())
+      {
+//        fo << "&nbsp;&nbsp;&nbsp;";
+        for ( int i = 2; i < level; ++i )
+          fo << "&nbsp;&nbsp;&nbsp;";
+        fo << "<a href=\"#" << anchor << "\">" << text << "</a><br>" << endl;
+      }
+      pos = end;
     }
   }                                       
 
