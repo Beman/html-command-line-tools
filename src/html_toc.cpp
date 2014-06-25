@@ -149,7 +149,7 @@ int cpp_main( int argc, char* argv[] )
 
       if ( !anchor.empty() && !text.empty())
       {
-//        fo << "&nbsp;&nbsp;&nbsp;";
+        fo << "&nbsp;&nbsp;&nbsp;";
         for ( int i = 2; i < level; ++i )
           fo << "&nbsp;&nbsp;&nbsp;";
         fo << "<a href=\"#" << anchor << "\">" << text << "</a><br>" << endl;
