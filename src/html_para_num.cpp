@@ -56,15 +56,15 @@ namespace
 
     string::size_type pos2 = line.find("<p ", start_pos);
     if (pos2 < pos)
-      pos += 2;
+      pos = pos2 + 2;
 
     pos2 = line.find("<pre>", start_pos);
     if (pos2 < pos)
-      pos += 4;
+      pos = pos2 + 4;
 
     pos2 = line.find("<pre ", start_pos);
     if (pos2 < pos)
-      pos += 4;
+      pos = pos2 + 4;
 
     return pos;
   }
