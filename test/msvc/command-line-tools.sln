@@ -1,7 +1,15 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "html_section_numbers", "html_section_numbers\html_section_numbers.vcxproj", "{2F12A3EF-FD23-4801-86E2-1FF183F3012E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "html_toc", "html_toc\html_toc.vcxproj", "{56AA2658-125D-4BA3-A823-E188F328FAC7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "html_ref_from_synopsis", "html_ref_from_synopsis\html_ref_from_synopsis.vcxproj", "{EDBA930F-E3F7-41C0-BFC1-778501F3A819}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "html_para_num", "html_para_num\html_para_num.vcxproj", "{99E001EC-A41E-4082-A91A-717725A8D247}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +21,18 @@ Global
 		{2F12A3EF-FD23-4801-86E2-1FF183F3012E}.Debug|Win32.Build.0 = Debug|Win32
 		{2F12A3EF-FD23-4801-86E2-1FF183F3012E}.Release|Win32.ActiveCfg = Release|Win32
 		{2F12A3EF-FD23-4801-86E2-1FF183F3012E}.Release|Win32.Build.0 = Release|Win32
+		{56AA2658-125D-4BA3-A823-E188F328FAC7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{56AA2658-125D-4BA3-A823-E188F328FAC7}.Debug|Win32.Build.0 = Debug|Win32
+		{56AA2658-125D-4BA3-A823-E188F328FAC7}.Release|Win32.ActiveCfg = Release|Win32
+		{56AA2658-125D-4BA3-A823-E188F328FAC7}.Release|Win32.Build.0 = Release|Win32
+		{EDBA930F-E3F7-41C0-BFC1-778501F3A819}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EDBA930F-E3F7-41C0-BFC1-778501F3A819}.Debug|Win32.Build.0 = Debug|Win32
+		{EDBA930F-E3F7-41C0-BFC1-778501F3A819}.Release|Win32.ActiveCfg = Release|Win32
+		{EDBA930F-E3F7-41C0-BFC1-778501F3A819}.Release|Win32.Build.0 = Release|Win32
+		{99E001EC-A41E-4082-A91A-717725A8D247}.Debug|Win32.ActiveCfg = Debug|Win32
+		{99E001EC-A41E-4082-A91A-717725A8D247}.Debug|Win32.Build.0 = Debug|Win32
+		{99E001EC-A41E-4082-A91A-717725A8D247}.Release|Win32.ActiveCfg = Release|Win32
+		{99E001EC-A41E-4082-A91A-717725A8D247}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

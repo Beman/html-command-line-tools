@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{56AA2658-125D-4BA3-A823-E188F328FAC7}</ProjectGuid>
+    <ProjectGuid>{99E001EC-A41E-4082-A91A-717725A8D247}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>html_toc</RootNamespace>
+    <RootNamespace>html_para_num</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -80,7 +80,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\html_toc.cpp" />
+    <ClCompile Include="..\..\..\src\html_para_num.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
