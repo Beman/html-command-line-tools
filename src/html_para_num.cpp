@@ -66,6 +66,14 @@ namespace
     if (pos2 < pos)
       pos = pos2 + 4;
 
+    pos2 = line.find("<li>", start_pos);
+    if (pos2 < pos)
+      pos = pos2 + 3;
+
+    pos2 = line.find("<li ", start_pos);
+    if (pos2 < pos)
+      pos = pos2 + 3;
+
     return pos;
   }
 
