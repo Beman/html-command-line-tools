@@ -136,6 +136,5 @@ int cpp_main(int argc, char* argv[])
     std::cout << line << '\n';
   }
 
-
   return 0;
 }
