@@ -22,8 +22,6 @@ namespace
   const string start_str("<!-- include file \"");
   const string start_end_str("\" -->");
   const string end_str("<!-- end include file -->");
-  const string pre_start_str("<pre>");
-  const string pre_end_str("</pre>");
 
   const string::size_type min_sz =
     start_str.size() + start_end_str.size() + end_str.size();
@@ -64,9 +62,8 @@ int cpp_main( int argc, char* argv[] )
     cout << 
       "Scans input-file for text in the form:\n"
       "   <!-- include file \"include-file\" -->...<!-- end include file --> and\n"
-      "   replace ... with the contents of include-file prefixed with \"<pre>\"\n"
-      "   and suffixed with \"</pre>\"."
-      "Option:  +#   Start with first '#' in included file.\n"
+      "   replace ... with the contents of include-file.\n"
+      "Option:  +#   Start with first '#' in included file. Used to bypass boilerplate\n"
       ;
     return 1;
   }
@@ -106,7 +103,7 @@ int cpp_main( int argc, char* argv[] )
     if ((end = buf.find(start_end_str, pos + 1)) != string::npos)
     {
       include_file = buf.substr(pos, end - pos);
-      cout << "include file \"" << include_file << "\" ";
+      cout << "include file \"" << include_file << "\"\n";
       pos = end + start_end_str.size();
       if ((end = buf.find(end_str, pos)) != string::npos)
       {
@@ -126,21 +123,15 @@ int cpp_main( int argc, char* argv[] )
         replace_ascii_chars_with_html_names(rep);
         if (!rep.empty() && rep[rep.size() - 1] == '\n')
           rep.erase(rep.size() - 1);  // erase unwanted trailing newline
-        //cout << "replacing:\n" << buf.substr(pos, end-pos) << "\nwith:\n" << rep << '\n';
         buf.erase(pos, end-pos);
-        buf.insert(pos, pre_start_str);
-        pos += pre_start_str.size();
         buf.insert(pos, rep);
         // do not further adjust pos since included file may itself contains includes
-        buf.insert(pos + rep.size(), pre_end_str);
         ++file_count;
       }
     }
   }
   
   fo << buf;
-
-  //cout << "buf.size() is " << buf.size() << endl;
 
   cout << file_count << " files included\n";
   cout << error_count << " errors detected\n";
