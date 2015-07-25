@@ -3,7 +3,7 @@
 //  © Copyright Beman Dawes  2007, 2015
 
 //  Distributed under the Boost Software License, Version 1.0.
-//  See http://www.boost.org/LICENSE_1_0.txt)
+//  See http://www.boost.org/LICENSE_1_0.txt
 
 
 //--------------------------------------------------------------------------------------// 
@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <cstring>   // for strchr
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/detail/lightweight_main.hpp>
 
@@ -27,6 +28,23 @@ namespace
   const string::size_type min_sz =
     start_str.size() + start_end_str.size() + end_str.size();
 
+  bool start_at_number_sign = false;
+
+  //  replace '"', '&', '<', '>' with html names "&quot;", "&amp;", "&lt;", "&gt;"
+  void replace_ascii_chars_with_html_names(string& s)
+  {
+    static const string chars("\"&<>");
+    static const char* name[] = { "&quot;", "&amp;", "&lt;", "&gt;" };
+
+    for (string::size_type pos = 0u;
+    (pos = s.find_first_of(chars, pos)) != string::npos;
+      ++pos)
+    {
+      size_t which = std::strchr(chars.c_str(), s[pos]) - chars.c_str();
+      s.replace(pos, 1, name[which]);
+    }
+  }
+
 }  // unnamed namespace
 
 //--------------------------------------------------------------------------------------// 
@@ -34,20 +52,22 @@ namespace
 int cpp_main( int argc, char* argv[] )
 {
 
-  //if (argc > 1 && *argv[1] == '-' && *(argv[1]+1) == 'x')
-  //{
-  //  suppress_sq_brackets = true;
-  //  --argc; ++argv;
-  //}
+  if (argc > 1 && *argv[1] == '+' && *(argv[1]+1) == '#')
+  {
+    start_at_number_sign = true;
+    --argc; ++argv;
+  }
 
   if (argc < 3)
   {
-    cout << "Usage: html_include_files input-file output-file\n";
+    cout << "Usage: html_include_files [+#] input-file output-file\n";
     cout << 
       "Scans input-file for text in the form:\n"
       "   <!-- include file \"include-file\" -->...<!-- end include file --> and\n"
-      "   replaces ... with the contents of include-file prefixed with \"<pre>\"\n"
-      "   and suffixed with \"</pre>\"";
+      "   replace ... with the contents of include-file prefixed with \"<pre>\"\n"
+      "   and suffixed with \"</pre>\"."
+      "Option:  +#   Start with first '#' in included file.\n"
+      ;
     return 1;
   }
 
@@ -68,7 +88,7 @@ int cpp_main( int argc, char* argv[] )
   string buf;
   getline(fi, buf, '\0'); // read entire file
 
-  cout << "buf.size() is " << buf.size() << endl;
+  //cout << "buf.size() is " << buf.size() << endl;
 
   string::size_type pos;
   string::size_type end;
@@ -77,6 +97,7 @@ int cpp_main( int argc, char* argv[] )
   int error_count = 0;
 
   //  process each include file
+
   for (pos = 0;
     pos + min_sz < buf.size() && (pos = buf.find(start_str, pos)) < buf.size();
     ++pos)
@@ -97,10 +118,15 @@ int cpp_main( int argc, char* argv[] )
           continue;
         }
         string rep;
+        string::size_type pos_num_sign;
         getline(finc, rep, '\0'); // read entire file
+
+        if (start_at_number_sign && (pos_num_sign = rep.find("#")) != string::npos)
+          rep.erase(0, pos_num_sign);
+        replace_ascii_chars_with_html_names(rep);
         if (!rep.empty() && rep[rep.size() - 1] == '\n')
           rep.erase(rep.size() - 1);  // erase unwanted trailing newline
-        cout << "replacing:\n" << buf.substr(pos, end-pos) << "\nwith:\n" << rep << '\n';
+        //cout << "replacing:\n" << buf.substr(pos, end-pos) << "\nwith:\n" << rep << '\n';
         buf.erase(pos, end-pos);
         buf.insert(pos, pre_start_str);
         pos += pre_start_str.size();
@@ -114,7 +140,7 @@ int cpp_main( int argc, char* argv[] )
   
   fo << buf;
 
-  cout << "buf.size() is " << buf.size() << endl;
+  //cout << "buf.size() is " << buf.size() << endl;
 
   cout << file_count << " files included\n";
   cout << error_count << " errors detected\n";

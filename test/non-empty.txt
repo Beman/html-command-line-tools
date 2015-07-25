@@ -1,0 +1,2 @@
+replacement-text
+characters that should be replaced with HTML symbol names: " & < >
