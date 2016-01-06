@@ -85,7 +85,7 @@ int cpp_main( int argc, char* argv[] )
     {
       generate = false;
     }
-    else if (buf.find("generate-section-numbers=true") != string::npos)
+    else if (buf.find("generate-section-numbers") != string::npos)
     {
       generate = true;
     }
@@ -95,11 +95,13 @@ int cpp_main( int argc, char* argv[] )
       if (buf[pos+2] >= '1' && buf[pos+2] <= '9')
       {
         int level = buf[pos+2] - '0';
-        pos += 4;
-        generate_section_number(buf, pos, level);
-        if (level > prior_level+1)
-          cerr << "warning: heading level is more than one greater than prior level\n";
-        prior_level = level;
+        if ((pos = buf.find(">", pos)) != string::npos)
+        {
+          generate_section_number(buf, pos+1, level);
+          if (level > prior_level+1)
+            cerr << "warning: heading level is more than one greater than prior level\n";
+          prior_level = level;
+        }
       }
     }
 
