@@ -63,13 +63,38 @@ int cpp_main( int argc, char* argv[] )
 {
   if (argc > 1)
   {
-    cout << "Usage: html_section_numbers\n"
-            "  Reads input from stdin\n"
-            "  Writes output to stdout\n"
-            "  Input lines copied to output, adding section numbers at start of\n"
-            "  <h1>-<h9> heading elements.\n"
-            "  Input lines containing \"generate-section-numbers=false\" or\n"
-            "  \"generate-section-numbers=true\" cause indicated action. Default true.\n"
+    string arg(argv[1]);
+    if (arg.find("--initial=") == 0)
+    {
+      --argc;
+      arg.erase(0, 10);
+      int level = 0;
+      while (!arg.empty())
+      {
+        string vstr;
+        while (!arg.empty() && arg[0] != '.')
+        {
+          vstr.push_back(arg[0]);
+          arg.erase(0, 1);
+        }
+        if (!arg.empty())
+          arg.erase(0, 1); // erase '.'
+        section[++level] = atoi(vstr.c_str());
+      }
+    }
+  }
+
+  if (argc > 1)
+  {
+    cout << "Usage: html_section_numbers [--initial=n...]\n"
+     "  Reads input from stdin\n"
+     "  Writes output to stdout\n"
+     "  Input lines copied to output, adding section numbers at start of\n"
+     "  <h1>-<h9> heading elements.\n"
+     "  Input lines containing \"generate-section-numbers=false\" or\n"
+     "  \"generate-section-numbers=true\" cause indicated action. Default true.\n"
+     " Option --initial=n... initializes section numbers,\n"
+     "   for example, --initial=24.8.8"
             ;
      return 1;
   }
