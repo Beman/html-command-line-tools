@@ -187,6 +187,15 @@ int cpp_main( int argc, char* argv[] )
             exit(1);
           }
 
+          // The erase semantics are carefully crafted to ensure that
+          // (1) Subsequent applications of the program will continue to work as
+          // specified. In other words, the spacing around the begin and end include
+          // markers is the same in input and output files.
+          // (2) HTML <pre>...</pre> uses with snippets work regardless of whether or not
+          // a newline is desired at the beginning or end of the formatted text. See the
+          // snip_1 and snip_2 snippets in cpp-snippets.cpp for examples without newlines
+          // and with newlines, respectively.
+
           // erase everything up through the begin_marker line
           snip_pos += begin_marker.size();
           while (snip_pos < rep.size() && rep[snip_pos] != '\n')
@@ -204,7 +213,8 @@ int cpp_main( int argc, char* argv[] )
           }
         }
 
-        replace_ascii_chars_with_html_names(rep);
+        if (htmlize)
+          replace_ascii_chars_with_html_names(rep);
         if (!rep.empty() && rep[rep.size() - 1] == '\n')
           rep.erase(rep.size() - 1);  // erase unwanted trailing newline
         buf.erase(pos, end-pos);
