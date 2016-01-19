@@ -13,38 +13,48 @@
 <p>This is an empty string being replace by an empty string:</p>
 <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
   <tr>
-    <td><!-- include file "empty.txt" --><!-- end include file --></td>
+    <td><!-- include "empty.txt" --><!-- end include --></td>
   </tr>
 </table>
 
 <p>This is an empty string being replace by a non-empty string:</p>
 <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
   <tr>
-    <td><!-- include file "non-empty.txt" --><!-- end include file --></td>
+    <td><!-- include "non-empty.txt" --><!-- end include --></td>
   </tr>
 </table>
 
 <p>This is a non-empty string being replace by an empty string:</p>
 <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
   <tr>
-    <td><!-- include file "empty.txt" -->original<!-- end include file --></td>
+    <td><!-- include "empty.txt" -->original<!-- end include --></td>
   </tr>
 </table>
 
 <p>This is a non-empty string being replace by a non-empty string:</p>
 <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
   <tr>
-    <td><!-- include file "non-empty.txt" -->original<!-- end include file --></td>
+    <td><!-- include "non-empty.txt" -->original<!-- end include --></td>
   </tr>
 </table>
 
-<p>This is a non-empty  <code>&lt;pre&gt;</code>...<code>&lt;/pre&gt; </code>being replace by a non-empty string:</p>
-<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
-  <tr>
-    <td><!-- include file "non-empty.txt" -->
-    <pre>original</pre><!-- end include file --></td>
-  </tr>
-</table>
+  <p>This is a C++ code snippet example, placing the markers inside a &gt;pre&lt;...&gt;/pre&lt; block:</p>
+  <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
+    <tr>
+      <td>
+        <pre><!-- include "cpp-snippets.cpp " snippet=snip_1 -->original<!-- end include --></pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>Similar snippet example, but using a different snippet:</p>
+  <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
+    <tr>
+      <td>
+        <pre><!-- include "cpp-snippets.cpp " snippet=snip_1 -->original<!-- end include --></pre>
+      </td>
+    </tr>
+  </table>
 
 </body>
 
