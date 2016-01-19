@@ -110,6 +110,7 @@ int cpp_main( int argc, char* argv[] )
       "      <!-- snippet=name -->\n"
       "  and end with the line before a line that contains:\n"
       "      <!-- end snippet -->\n"
+      "  In neither case are the newlines included.\n"
       "  Note: For including C/C++ files, the snippet begin and end markers can be\n"
       "  placed in C/C++ comments."
       "  Option --htmlize causes '\"', '&', '<', and '<' in the include file to be\n"
@@ -185,17 +186,21 @@ int cpp_main( int argc, char* argv[] )
               << endl;
             exit(1);
           }
+
+          // erase everything up through the begin_marker line
           snip_pos += begin_marker.size();
-          while (snip_pos < rep.size()
-            && (buf[snip_pos] == '\r' || buf[snip_pos] == '\n')) {
-            ++snip_pos;
-          }
+          while (snip_pos < rep.size() && rep[snip_pos] != '\n')
+            { ++snip_pos; }
+          if (snip_pos < rep.size()  && rep[snip_pos] == '\n')
+            { ++snip_pos; }
           rep.erase(0, snip_pos);
+
+          // erase everything from the '\n' prior to the beginning of the strip_end line
           if ((snip_pos = rep.find(snip_end_str)) != string::npos)
           {
-            while (snip_pos != 0
-              && (buf[snip_pos] == '\r' || buf[snip_pos] == '\n')) { --snip_pos; }
-            rep.erase(snip_pos);
+            while (snip_pos != 0 && rep[snip_pos] != '\n')
+              { --snip_pos; }
+            rep.erase(snip_pos+1);
           }
         }
 
