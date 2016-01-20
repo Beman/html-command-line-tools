@@ -84,30 +84,45 @@ int cpp_main( int argc, char* argv[] )
 
     if (buf[pos+1] == 'h')
     {
-      // set level and set pos to position after <h#>
+      // set level
       if ( buf[pos+2] < '1' || buf[pos+2] > '9' ) continue;
       level = buf[pos+2] - '0';
-      pos += 4;
+
+      // if id = present, save value as anchor
+      if (buf.find(" id=\"", pos+3) == pos + 3)
+      {
+        if ((end = buf.find('"', pos + 8)) != string::npos)
+        {
+          anchor = buf.substr(pos + 8, end - (pos + 8));
+        }
+      }
+
+      if ((end = buf.find('>', pos+2)) == string::npos) break;
+      pos = end + 1; // set pos to position after <h#...>
 
       // find end of heading
       if ( (end = buf.find( "</h", pos )) == string::npos ) break;
 
       text.append(&buf[pos], &buf[end]);  // initially, assume whole heading is text
 
-      // get anchor and erase anchor from text
-      string s(&buf[pos], &buf[end]);
-      string::size_type anchor_pos = s.find("<a name=\""), anchor_end;
-      if (anchor_pos != string::npos)
+      if (anchor.empty())
       {
-        anchor_pos += 9;
-        anchor_end = s.find("\"", anchor_pos);
-        if (anchor_end != string::npos)
+        // get anchor and erase anchor from text
+        string s(&buf[pos], &buf[end]);
+        string::size_type anchor_pos = s.find("<a name=\""), anchor_end;
+        string::size_type id_pos = s.find("id=\"");
+        if (anchor_pos != string::npos)
         {
-          anchor = s.substr(anchor_pos, anchor_end - anchor_pos);
-          text.erase(anchor_pos - 9, anchor.size() + 11);  // erase <a..>
-          anchor_end = text.find("</a>", anchor_pos - 9);
+          anchor_pos += 9;
+          anchor_end = s.find("\"", anchor_pos);
           if (anchor_end != string::npos)
-            text.erase(anchor_end, 4);   // erase </a>
+          {
+            anchor = s.substr(anchor_pos, anchor_end - anchor_pos);
+            text.erase(anchor_pos - 9, anchor.size() + 11);  // erase <a..>
+            anchor_end = text.find("</a>", anchor_pos - 9);
+            if (anchor_end != string::npos)
+              text.erase(anchor_end, 4);   // erase </a>
+          }
         }
       }
 

@@ -102,7 +102,7 @@ int cpp_main( int argc, char* argv[] )
   string buf;
   string::size_type pos;
   bool generate = true;
-  int prior_level = 0;
+  int prior_level = -1;  // -1 suppresses heading level warning for initial header
 
   while (getline(cin, buf))  // input each line
   {
@@ -113,6 +113,7 @@ int cpp_main( int argc, char* argv[] )
     else if (buf.find("generate-section-numbers") != string::npos)
     {
       generate = true;
+      prior_level = -1;  // suppress heading level warning 
     }
     else if (generate && (pos = buf.find("<h")) < buf.size() - 4)
     {
@@ -123,8 +124,11 @@ int cpp_main( int argc, char* argv[] )
         if ((pos = buf.find(">", pos)) != string::npos)
         {
           generate_section_number(buf, pos+1, level);
-          if (level > prior_level+1)
-            cerr << "warning: heading level is more than one greater than prior level\n";
+          if (prior_level >= 0 && level > prior_level+1)
+          {
+            cerr << "Warning: heading level is more than one greater than prior level:\n";
+            cerr << buf << '\n';
+          }
           prior_level = level;
         }
       }
