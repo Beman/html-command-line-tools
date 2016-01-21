@@ -26,13 +26,15 @@ namespace
   const string start_end_str(" -->");
   const string end_str("<!-- end include -->");
 
+  const string formatted_str(" formatted");
+
   const string snip_begin_str("<!-- snippet=");
   const string snip_end_str("<!-- end snippet -->");
 
   const string::size_type min_sz =
     start_str.size() + start_end_str.size() + end_str.size();
 
-  bool htmlize = false;
+  bool formatted = false;
 
   string buf;
 
@@ -85,36 +87,24 @@ namespace
 int cpp_main( int argc, char* argv[] )
 {
 
-  if (argc > 1 && *argv[1] == '-')
-  {
-    string s(argv[1]);
-    if (s == "--htmlize")
-    {
-      htmlize = true;
-      --argc; ++argv;
-    }
-    else
-      cout << "Invalid option: " << s << endl;
-  }
-
   if (argc < 3)
   {
-    cout << "Usage: html_include_files [--htmlize] input-file output-file\n";
+    cout << "Usage: html_include_files input-file output-file\n";
     cout <<
       "  Scans input-file for text in the form:\n"
-      "   <!-- include \"include-path\" [snippet=name]-->...<!-- end include -->\n"
-      "  and replaces ... with the contents of include-path.\n"
-      "  If optional \"snippet=name\" is present, only the named snippet will be\n"
-      "  included; otherwise the entire file will be included.\n"
+      "    <!-- include \"include-path\" [formatted] [snippet=name]-->...<!-- end include -->\n"
+      "    and replaces ... with the contents of include-path.\n"
+      "  If option \"formatted\" is present, '\"', '&', '<', and '<' will be\n"
+      "    replaced by \"&quot;\", \"&amp;\", \"&lt;\", and \"&gt;\", respectively."
+      "  If option \"snippet=name\" is present, only the named snippet will be\n"
+      "    included; otherwise the entire file will be included.\n"
       "  Snippets begin with the line after a line that contains:\n"
       "      <!-- snippet=name -->\n"
       "  and end with the line before a line that contains:\n"
       "      <!-- end snippet -->\n"
       "  In neither case are the newlines included.\n"
       "  Note: For including C/C++ files, the snippet begin and end markers can be\n"
-      "  placed in C/C++ comments."
-      "  Option --htmlize causes '\"', '&', '<', and '<' in the include file to be\n"
-      "  replaced by \"&quot;\", \"&amp;\", \"&lt;\", and \"&gt;\", respectively."
+      "    placed in C/C++ comments."
       ;
     return 1;
   }
@@ -152,8 +142,17 @@ int cpp_main( int argc, char* argv[] )
     {
       string include_file(buf.substr(pos, end - pos));
       cout << "include file \"" << include_file << "\"\n";
-
       pos = end+1;
+
+      if (buf.find(formatted_str, pos) == pos)
+      {
+        formatted = true;
+        pos += formatted_str.size();
+        while (pos < buf.size() && buf[pos] == ' ') { ++pos; }
+      }
+      else
+        formatted = false;
+
       string snippet_name(get_snippet_name(pos));  // updates pos if snippet=name found
       if (buf.find(start_end_str, pos) == pos) // account for start_end_str
         pos += start_end_str.size();
@@ -213,7 +212,7 @@ int cpp_main( int argc, char* argv[] )
           }
         }
 
-        if (htmlize)
+        if (formatted)
           replace_ascii_chars_with_html_names(rep);
         if (!rep.empty() && rep[rep.size() - 1] == '\n')
           rep.erase(rep.size() - 1);  // erase unwanted trailing newline
